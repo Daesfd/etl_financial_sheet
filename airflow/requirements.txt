@@ -1,0 +1,4 @@
+pyarrow==9.0.0
+pandas==1.4.4
+great-expectations==0.15.34
+airflow-provider-great-expectations==0.2.2
