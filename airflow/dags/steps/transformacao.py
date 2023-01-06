@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def trans(input_file, output_file):
+def limpeza_dos_dados(input_file, output_file):
 
     df = pd.read_parquet(input_file)
 
