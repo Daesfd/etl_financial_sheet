@@ -11,7 +11,7 @@ def limpeza_dos_dados(input_file, output_file):
 
         for item in range(0, len(df)):
 
-            #df[ano][item] = df[ano][item].replace(',', '')
+            df[ano][item] = df[ano][item].replace(',', '')
 
             if df[ano][item] == '-':
 
@@ -50,53 +50,53 @@ def limpeza_dos_dados(input_file, output_file):
     df.astype({'Item':str, '2018': float, '2019': float, '2020': float, '2021': float}).to_parquet(output_file, index=False)
 
 
-def get_indicadores(balanco_patrimonial_data_file, dre_data_file, output_file):
+def get_ratios(balanco_patrimonial_data_file, dre_data_file, output_file):
     def calc_liq_geral(df_bal, year):
-        return (df_bal[year][20] + df_bal[year][30]) / df_bal[year][60]
+        return (df_bal[year][19] + df_bal[year][29]) / df_bal[year][59]
 
     def calc_liq_corrente(df_bal, year):
-        return df_bal[year][20] / df_bal[year][47]
+        return df_bal[year][19] / df_bal[year][46]
 
     def calc_liq_seca(df_bal, year):
-        return (df_bal[year][20] - df_bal[year][13]) / df_bal[year][47]
+        return (df_bal[year][19] - df_bal[year][12]) / df_bal[year][46]
 
     def calc_liq_imediata(df_bal, year):
-        return df_bal[year][1] / df_bal[year][47]
+        return df_bal[year][0] / df_bal[year][46]
 
     def calc_ccl(df_bal, year):
-        return df_bal[year][20] - df_bal[year][47]
+        return df_bal[year][19] - df_bal[year][46]
 
     def calc_end_geral(df_bal, year):
-        return df_bal[year][60] / df_bal[year][35] * 100
+        return df_bal[year][59] / df_bal[year][34] * 100
 
     def calc_comp_end(df_bal, year):
-        return df_bal[year][47] / df_bal[year][60] * 100
+        return df_bal[year][46] / df_bal[year][59] * 100
 
     def calc_imob_pl(df_bal, year):
-        return (df_bal[year][21] + df_bal[year][28] + df_bal[year][31]) / df_bal[year][78] * 100
+        return (df_bal[year][20] + df_bal[year][27] + df_bal[year][30]) / df_bal[year][77] * 100
 
     def calc_giro_at(df_dre, df_bal, year):
-        return df_dre[year][1] / df_bal[year][35]
+        return df_dre[year][0] / df_bal[year][34]
 
     def calc_marg_liq(df_dre, year):
-        return df_dre[year][39] / df_dre[year][1]
+        return df_dre[year][38] / df_dre[year][0]
 
     def calc_roa(df_dre, df_bal, year):
-        return df_dre[year][39] / df_bal[year][35]
+        return df_dre[year][38] / df_bal[year][34]
 
     def calc_roe(df_dre, df_bal, year):
-        return df_dre[year][39] / df_bal[year][78]
+        return df_dre[year][38] / df_bal[year][77]
 
     def calc_pmrv(df_bal, df_dre, year):
-        return df_bal[year][6] / df_dre[year][1] * 360
+        return df_bal[year][5] / df_dre[year][0] * 360
 
     def calc_pmre(df_bal, df_dre, year):
-        return df_bal[year][13] / abs(df_dre[year][3]) * 360
+        return df_bal[year][12] / abs(df_dre[year][2]) * 360
 
     def calc_pmpc(df_bal, df_dre, year):
         if year == '2018':
             return 0
-        return df_bal[year][40] / (abs(df_dre[year][3]) + df_bal[year][13] - df_bal[str(int(year) - 1)][13]) * 360
+        return df_bal[year][39] / (abs(df_dre[year][2]) + df_bal[year][12] - df_bal[str(int(year) - 1)][12]) * 360
 
     def calc_co(pmre, pmrv):
         return pmre + pmrv
@@ -105,13 +105,13 @@ def get_indicadores(balanco_patrimonial_data_file, dre_data_file, output_file):
         return co - pmpc
 
     def calc_nig(df_bal, year):
-        aco = df_bal[year][6] + df_bal[year][13]
-        pco = df_bal[year][40]
+        aco = df_bal[year][5] + df_bal[year][12]
+        pco = df_bal[year][39]
         return aco - pco
 
     def calc_st(df_bal, year):
-        acf = df_bal[year][1]
-        pcf = df_bal[year][37] + df_bal[year][42]
+        acf = df_bal[year][0]
+        pcf = df_bal[year][36] + df_bal[year][41]
         return acf - pcf
 
     liq_ger, liq_cor, liq_seca, liq_im, ccl_data = [], [], [], [], []
@@ -180,7 +180,7 @@ def get_indicadores(balanco_patrimonial_data_file, dre_data_file, output_file):
     df_com_indicadores.to_parquet(output_file)
 
 
-def obtencao_da_media_do_setor(
+def avg_sector_values(
         path_to_lren_ind,
         path_to_hnory_ind,
         path_to_frg_ind,
@@ -216,4 +216,4 @@ def obtencao_da_media_do_setor(
     df_media.set_index(pd.Index(anos), inplace=True)
     df_media.columns = lren_ind.columns
 
-    df_media.to_parquet(output_path_file, index=False)
+    df_media.to_parquet(output_path_file, index=True)

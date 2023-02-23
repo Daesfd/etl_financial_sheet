@@ -1,5 +1,6 @@
 import os
 
+import pendulum
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
@@ -30,7 +31,7 @@ default_args = {
 }
 
 
-def aquisicao_de_indicadores_dag(
+def ratios_acquisition_dag(
         dag,
         local_parquet_bp_data_transf_path_template,
         local_parquet_dre_data_transf_path_template,
@@ -39,9 +40,9 @@ def aquisicao_de_indicadores_dag(
 ):
     with dag:
 
-        get_indicadores = PythonOperator(
-            task_id='get_indicadores',
-            python_callable=get_indicadores,
+        get_ratios_task = PythonOperator(
+            task_id='get_ratios_task',
+            python_callable=get_ratios,
             op_kwargs={
                 'balanco_patrimonial_data_file': local_parquet_bp_data_transf_path_template,
                 'dre_data_file': local_parquet_dre_data_transf_path_template,
@@ -61,33 +62,33 @@ def aquisicao_de_indicadores_dag(
 
         rm_task = BashOperator(
             task_id="rm_task",
-            bash_command=f"rm {local_parquet_bp_data_transf_path_template} {local_parquet_dre_data_transf_path_template} {output_file_path}"
+            bash_command=f"rm {local_parquet_bp_data_transf_path_template} {local_parquet_dre_data_transf_path_template}"
         )
 
-        get_indicadores >> local_to_gcs_task3_tier_2 >> rm_task
+        get_ratios_task >> local_to_gcs_task3_tier_2 >> rm_task
 
 
-def get_media_do_setor(
+def acquisition_avg_sector_values_dag(
         dag,
         path_to_lren_ind,
         path_to_hnory_ind,
         path_to_frg_ind,
         path_to_nxgpy_ind,
-        media_path_file,
+        avg_path_file,
         gcs_inc_data_path_template_task_4
 
 ):
     with dag:
 
-        obtencao_da_media_do_setor_task = PythonOperator(
-            task_id='obtencao_media_do_setor',
-            python_callable=obtencao_da_media_do_setor,
+        avg_sector_values_task = PythonOperator(
+            task_id='avg_sector_values_dag',
+            python_callable=avg_sector_values,
             op_kwargs={
                 'path_to_lren_ind': path_to_lren_ind,
                 'path_to_hnory_ind': path_to_hnory_ind,
                 'path_to_frg_ind': path_to_frg_ind,
                 'path_to_nxgpy_ind': path_to_nxgpy_ind,
-                'output_path_file': media_path_file
+                'output_path_file': avg_path_file
             }
         )
 
@@ -97,15 +98,159 @@ def get_media_do_setor(
             op_kwargs={
                 "bucket": BUCKET,
                 "object_name": gcs_inc_data_path_template_task_4,
-                "local_file": media_path_file,
+                "local_file": avg_path_file,
             }
         )
 
         rm_task = BashOperator(
             task_id="rm_task",
-            bash_command=f"rm {media_path_file}"
+            bash_command=f"rm {avg_path_file}"
         )
 
-        obtencao_da_media_do_setor_task >> local_to_gcs_task4_tier_3 >> rm_task
+        avg_sector_values_task >> local_to_gcs_task4_tier_3 >> rm_task
 
 
+FRG_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/frg_ratio.parquet'
+HNORY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/hnory_ratio.parquet'
+LRENY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/lreny_ratio.parquet'
+NXGPY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/nxgpy_ratio.parquet'
+AVERAGE_RATIO_FILE_TEMPLATE = AIRFLOW_HOME + '/avg_ratio.parquet'
+AVERAGE_RATIO_GCS_PATH_TEMPLATE = 'tier3/RATIO/avg_ratio.parquet'
+
+
+avg_sector_values_dag = DAG(
+    dag_id='avg_sector_values_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['avg_sector_values_data']
+)
+
+acquisition_avg_sector_values_dag(
+    dag=avg_sector_values_dag,
+    path_to_lren_ind=LRENY_RATIO_FILE_TEMPLETE,
+    path_to_hnory_ind=HNORY_RATIO_FILE_TEMPLETE,
+    path_to_frg_ind=FRG_RATIO_FILE_TEMPLETE,
+    path_to_nxgpy_ind=NXGPY_RATIO_FILE_TEMPLETE,
+    avg_path_file=AVERAGE_RATIO_FILE_TEMPLATE,
+    gcs_inc_data_path_template_task_4=AVERAGE_RATIO_GCS_PATH_TEMPLATE
+)
+
+
+######################################################################################################################
+MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data_transf.parquet'
+MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_bp_data_transf.parquet'
+MGLU_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/mglu_ratio.parquet'
+MGLU_RATIO_GCS_PATH_TEMPLATE = 'tier2/RATIO/mglu_ratio.parquet'
+
+mglu_ratio_data_dag = DAG(
+    dag_id='mglu_ratio_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['mglu_ratio_data']
+)
+
+ratios_acquisition_dag(
+    dag=mglu_ratio_data_dag,
+    local_parquet_bp_data_transf_path_template=MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE,
+    local_parquet_dre_data_transf_path_template=MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE,
+    output_file_path=MGLU_RATIO_FILE_TEMPLETE,
+    gcs_inc_data_path_template_task_3=MGLU_RATIO_GCS_PATH_TEMPLATE
+)
+####################################################################################################################
+FRG_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_dre_data_transf.parquet'
+FRG_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_bp_data_transf.parquet'
+FRG_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/frg_ratio.parquet'
+FRG_RATIO_GCS_PATH_TEMPLATE = 'tier2/RATIO/frg_ratio.parquet'
+
+frg_ratio_data_dag = DAG(
+    dag_id='frg_ratio_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['frg_ratio_data']
+)
+
+ratios_acquisition_dag(
+    dag=frg_ratio_data_dag,
+    local_parquet_bp_data_transf_path_template=FRG_PARQUET_BP_TRANSF_FILE_TEMPLATE,
+    local_parquet_dre_data_transf_path_template=FRG_PARQUET_DRE_TRANSF_FILE_TEMPLATE,
+    output_file_path=FRG_RATIO_FILE_TEMPLETE,
+    gcs_inc_data_path_template_task_3=FRG_RATIO_GCS_PATH_TEMPLATE
+)
+###########################################################################################################
+HNORY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_dre_data_transf.parquet'
+HNORY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_bp_data_transf.parquet'
+HNORY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/hnory_ratio.parquet'
+HNORY_RATIO_GCS_PATH_TEMPLATE = 'tier2/RATIO/hnory_ratio.parquet'
+
+hnory_ratio_data_dag = DAG(
+    dag_id='hnory_ratio_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['hnory_ratio_data']
+)
+
+ratios_acquisition_dag(
+    dag=hnory_ratio_data_dag,
+    local_parquet_bp_data_transf_path_template=HNORY_PARQUET_BP_TRANSF_FILE_TEMPLATE,
+    local_parquet_dre_data_transf_path_template=HNORY_PARQUET_DRE_TRANSF_FILE_TEMPLATE,
+    output_file_path=HNORY_RATIO_FILE_TEMPLETE,
+    gcs_inc_data_path_template_task_3=HNORY_RATIO_GCS_PATH_TEMPLATE
+)
+############################################################################################################
+LRENY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_dre_data_transf.parquet'
+LRENY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_bp_data_transf.parquet'
+LRENY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/lreny_ratio.parquet'
+LRENY_RATIO_GCS_PATH_TEMPLATE = 'tier2/RATIO/lreny_ratio.parquet'
+
+lreny_ratio_data_dag = DAG(
+    dag_id='lreny_ratio_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['lreny_ratio_data']
+)
+
+ratios_acquisition_dag(
+    dag=lreny_ratio_data_dag,
+    local_parquet_bp_data_transf_path_template=LRENY_PARQUET_BP_TRANSF_FILE_TEMPLATE,
+    local_parquet_dre_data_transf_path_template=LRENY_PARQUET_DRE_TRANSF_FILE_TEMPLATE,
+    output_file_path=LRENY_RATIO_FILE_TEMPLETE,
+    gcs_inc_data_path_template_task_3=LRENY_RATIO_GCS_PATH_TEMPLATE
+)
+########################################################################################################
+NXGPY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_dre_data_transf.parquet'
+NXGPY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_bp_data_transf.parquet'
+NXGPY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/nxgpy_ratio.parquet'
+NXGPY_RATIO_GCS_PATH_TEMPLATE = 'tier2/RATIO/nxgpy_ratio.parquet'
+
+nxgpy_ratio_data_dag = DAG(
+    dag_id='nxgpy_ratio_data',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['nxgpy_ratio_data']
+)
+
+ratios_acquisition_dag(
+    dag=nxgpy_ratio_data_dag,
+    local_parquet_bp_data_transf_path_template=NXGPY_PARQUET_BP_TRANSF_FILE_TEMPLATE,
+    local_parquet_dre_data_transf_path_template=NXGPY_PARQUET_DRE_TRANSF_FILE_TEMPLATE,
+    output_file_path=NXGPY_RATIO_FILE_TEMPLETE,
+    gcs_inc_data_path_template_task_3=NXGPY_RATIO_GCS_PATH_TEMPLATE
+)
