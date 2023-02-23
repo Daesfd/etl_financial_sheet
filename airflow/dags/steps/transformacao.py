@@ -9,13 +9,17 @@ def limpeza_dos_dados(input_file, output_file):
 
         df[ano] = df[ano].str.replace('(', '-', regex=True).str.replace(')', '', regex=True)
 
-        for item in range(1, len(df)):
+        for item in range(0, len(df)):
 
-            df[ano][item] = df[ano][item].replace(',', '')
+            #df[ano][item] = df[ano][item].replace(',', '')
 
             if df[ano][item] == '-':
 
-                df = df.replace('-', '')
+                df[ano][item] = df[ano][item].replace('-', '')
+
+                if len(df[ano][item]) == 0:
+
+                    df[ano][item] = 0
 
             elif df[ano][item].endswith('B'):
 
@@ -35,15 +39,15 @@ def limpeza_dos_dados(input_file, output_file):
 
             elif len(df[ano][item]) == 0:
 
-                df[ano][item] = None
+                df[ano][item] = 0
 
             else:
 
                 df[ano][item] = float(df[ano][item])
 
-    df['2018'][2] = None
+    df['2018'][4] = 0
 
-    df.to_parquet(output_file)
+    df.astype({'Item':str, '2018': float, '2019': float, '2020': float, '2021': float}).to_parquet(output_file, index=False)
 
 
 def get_indicadores(balanco_patrimonial_data_file, dre_data_file, output_file):
@@ -173,7 +177,7 @@ def get_indicadores(balanco_patrimonial_data_file, dre_data_file, output_file):
         'ST': st
     }, index=['2018', '2019', '2020', '2021'])
 
-    df_com_indicadores.to_csv(output_file)
+    df_com_indicadores.to_parquet(output_file)
 
 
 def obtencao_da_media_do_setor(
@@ -212,4 +216,4 @@ def obtencao_da_media_do_setor(
     df_media.set_index(pd.Index(anos), inplace=True)
     df_media.columns = lren_ind.columns
 
-    df_media.to_parquet(output_path_file)
+    df_media.to_parquet(output_path_file, index=False)

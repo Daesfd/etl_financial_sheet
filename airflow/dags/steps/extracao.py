@@ -67,10 +67,10 @@ def get_dre_data(headers, ticker, output_file):
 
     df = df[1:]
 
-    df.to_csv(output_file)
+    df.to_csv(output_file, index=False)
 
 
-def get_bal_pat(headers, ticker, output_file):
+def get_bal_pat_data(headers, ticker, output_file):
     url = f'https://www.marketwatch.com/investing/stock/{ticker}/financials/balance-sheet'
     lista_de_valores, lista_de_nomes, lista_final, lista_de_exclusao = [], [], [], []
     resp = requests.get(url, headers=headers)
@@ -135,4 +135,4 @@ def get_bal_pat(headers, ticker, output_file):
 
     df = df[1:]
 
-    df.to_csv(output_file)
+    df.to_csv(output_file, index=False)
