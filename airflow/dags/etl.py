@@ -41,7 +41,20 @@ def dre_etl_dag(
         local_csv_dre_data_path_template,
         local_parquet_dre_data_transf_path_template
 ):
+    """
+    This function describes a DAG, which will extract income statement data, using bs4,
+    load the data in a tier 1 file in a GCS bucket, then it cleans the data,
+    with correct data types, loads, again, the data into a GCS bucket, but inside a tier 2 file.
+    Then, it removes the local files, which won't be used in the other DAGs.
 
+    :param dag: This function's DAG.
+    :param headers: Headers used for bs4.
+    :param ticker: Ticker of the chosen stock.
+    :param gcs_dre_data_path_template_task_1: Path where the income statement data will be stored in a GCS' bucket.
+    :param gcs_dre_data_path_template_task_2: Path where the transformed income statement data will be stored in a GCS' bucket.
+    :param local_csv_dre_data_path_template: Local file path where the income statement data will be stored.
+    :param local_parquet_dre_data_transf_path_template: Local file path where the transformed income statement data will be stored.
+    """
     with dag:
         extract_dre_data_task = PythonOperator(
             task_id='extract_dre_data_task',
@@ -65,7 +78,7 @@ def dre_etl_dag(
 
         transf_dre_data_task = PythonOperator(
             task_id='transf_dre_data_task',
-            python_callable=limpeza_dos_dados,
+            python_callable=data_cleaning,
             op_kwargs={
                 'input_file': local_csv_dre_data_path_template,
                 'output_file': local_parquet_dre_data_transf_path_template
@@ -99,7 +112,20 @@ def bp_etl_dag(
         local_csv_bp_data_path_template,
         local_parquet_bp_data_transf_path_template
 ):
+    """
+    This function describes a DAG, which extracts balance sheet data, using bs4,
+    loads the data in a tier 1 file in a GCS bucket. Then, it cleans the data,
+    correcting the data types, loads, again, the data into a GCS bucket, but inside a tier 2 file.
+    Then, it removes the local files, which won't be used in the other DAGs.
 
+    :param dag: This function's DAG.
+    :param headers: Headers used for bs4.
+    :param ticker: Ticker of the chosen stock.
+    :param gcs_bp_data_path_template_task_1: Path where the balance sheet data will be stored in a GCS' bucket.
+    :param gcs_bp_data_path_template_task_2: Path where the transformed balance sheet data will be stored in a GCS' bucket.
+    :param local_csv_bp_data_path_template: Local file path where the balance sheet data will be stored.
+    :param local_parquet_bp_data_transf_path_template: Local file path where the transformed balance sheet data will be stored.
+    """
     with dag:
 
         extract_bp_data_task = PythonOperator(
@@ -124,7 +150,7 @@ def bp_etl_dag(
 
         transf_bp_data_task = PythonOperator(
             task_id='transf_bp_data_task',
-            python_callable=limpeza_dos_dados,
+            python_callable=data_cleaning,
             op_kwargs={
                 'input_file': local_csv_bp_data_path_template,
                 'output_file': local_parquet_bp_data_transf_path_template
@@ -149,6 +175,9 @@ def bp_etl_dag(
         extract_bp_data_task >> local_to_gcs_task1_tier_1 >> transf_bp_data_task >> local_to_gcs_task2_tier_2 >> rm_task
 
 ##############################################################################################################
+
+#
+
 MGLU_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data.csv'
 MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data_transf.parquet'
 MGLU_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/mglu_dre_data_raw.csv'
@@ -189,6 +218,9 @@ bp_etl_dag(
     local_parquet_bp_data_transf_path_template=MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE
 )
 ###############################################################################################################
+
+#
+
 FRG_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_dre_data.csv'
 FRG_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_dre_data_transf.parquet'
 FRG_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/frg_dre_data_raw.csv'

@@ -7,22 +7,22 @@ from bs4 import BeautifulSoup
 
 def get_dre_data(headers, ticker, output_file):
     url = f'https://www.marketwatch.com/investing/stock/{ticker}/financials?mod=mw_quote_tab'
-    lista_de_valores, lista_de_nomes, lista_final, lista_de_exclusao = [], [], [], []
+    value_list, name_list, final_list, exclusion_list = [], [], [], []
     resp = requests.get(url, headers=headers)
     soup = BeautifulSoup(resp.content, 'html.parser')
 
-    for item_a_ser_excluido in soup.find_all('span', class_=[
+    for excluded_item in soup.find_all('span', class_=[
         'value', 'primary', 'volume__label', 'headline', 'bg-quote', 'primary'
     ]):
-        lista_de_exclusao.append(item_a_ser_excluido.string)
+        exclusion_list.append(excluded_item.string)
 
-    for item_a_ser_excluido in soup.find_all('bg-quote', field='volume'):
-        lista_de_exclusao.append(item_a_ser_excluido.string)
+    for excluded_item in soup.find_all('bg-quote', field='volume'):
+        exclusion_list.append(excluded_item.string)
 
-    for valor in soup.find_all('span'):
-        lista_de_valores.append(valor.string)
+    for value in soup.find_all('span'):
+        value_list.append(value.string)
 
-    lista_de_valores = [elemento for elemento in lista_de_valores if elemento not in (
+    value_list = [value for value in value_list if value not in (
         ' Content',
         'Assets',
         'LRENY Finanicals',
@@ -34,30 +34,30 @@ def get_dre_data(headers, ticker, output_file):
         'United States',
         None)]
 
-    lista_de_valores = [elemento for elemento in lista_de_valores if elemento not in lista_de_exclusao]
-    new_val = lista_de_valores[43:328]
+    value_list = [value for value in value_list if value not in exclusion_list]
+    value_list = value_list[43:328]
 
-    for nome in soup.select('div.cell__content.fixed--cell'):
-        lista_de_nomes.append(nome.string)
+    for name in soup.select('div.cell__content.fixed--cell'):
+        name_list.append(name.string)
 
-    lista_de_nomes = [e for e in lista_de_nomes if e not in ('5-year trend', None)]
+    name_list = [e for e in name_list if e not in ('5-year trend', None)]
 
-    lista_final.append(lista_de_nomes.pop(0))
-    for ano in ['2018', '2019', '2020', '2021']:
-        lista_final.append(ano)
+    final_list.append(name_list.pop(0))
+    for year in ['2018', '2019', '2020', '2021']:
+        final_list.append(year)
 
     while True:
         try:
-            lista_final.append(lista_de_nomes.pop(0))
-            new_val.pop(0)
+            final_list.append(name_list.pop(0))
+            value_list.pop(0)
 
             for i in range(0, 4):
-                lista_final.append(new_val.pop(0))
+                final_list.append(value_list.pop(0))
 
         except IndexError:
             break
 
-    data = list(zip(*[iter(lista_final)] * 5))
+    data = list(zip(*[iter(final_list)] * 5))
 
     df = pd.DataFrame(data)
 
@@ -72,22 +72,22 @@ def get_dre_data(headers, ticker, output_file):
 
 def get_bal_pat_data(headers, ticker, output_file):
     url = f'https://www.marketwatch.com/investing/stock/{ticker}/financials/balance-sheet'
-    lista_de_valores, lista_de_nomes, lista_final, lista_de_exclusao = [], [], [], []
+    value_list, name_list, final_list, exclusion_list = [], [], [], []
     resp = requests.get(url, headers=headers)
     soup = BeautifulSoup(resp.content, 'html.parser')
 
-    for item_a_ser_excluido in soup.find_all('span', class_=[
+    for excluded_item in soup.find_all('span', class_=[
         'value', 'primary', 'volume__label', 'headline', 'bg-quote', 'primary'
     ]):
-        lista_de_exclusao.append(item_a_ser_excluido.string)
+        exclusion_list.append(excluded_item.string)
 
-    for item_a_ser_excluido in soup.find_all('bg-quote', field='volume'):
-        lista_de_exclusao.append(item_a_ser_excluido.string)
+    for excluded_item in soup.find_all('bg-quote', field='volume'):
+        exclusion_list.append(excluded_item.string)
 
-    for valor in soup.find_all('span'):
-        lista_de_valores.append(valor.string)
+    for value in soup.find_all('span'):
+        value_list.append(value.string)
 
-    lista_de_valores = [elemento for elemento in lista_de_valores if elemento not in (
+    value_list = [value for value in value_list if value not in (
         ' Content',
         'Assets',
         'LRENY Finanicals',
@@ -99,33 +99,33 @@ def get_bal_pat_data(headers, ticker, output_file):
         'United States',
         None)]
 
-    lista_de_valores = [elemento for elemento in lista_de_valores if elemento not in lista_de_exclusao]
+    value_list = [value for value in value_list if value not in exclusion_list]
 
-    new_val = lista_de_valores[43:439]
-    new_val.pop(180)
+    value_list = value_list[43:439]
+    value_list.pop(180)
 
-    for nome in soup.select('div.cell__content.fixed--cell'):
-        lista_de_nomes.append(nome.string)
+    for name in soup.select('div.cell__content.fixed--cell'):
+        name_list.append(name.string)
 
-    lista_de_nomes = [e for e in lista_de_nomes if e not in ('5-year trend', None)]
-    lista_de_nomes.pop(37)
+    name_list = [name for name in name_list if name not in ('5-year trend', None)]
+    name_list.pop(37)
 
-    lista_final.append(lista_de_nomes.pop(0))
-    for ano in ['2018', '2019', '2020', '2021']:
-        lista_final.append(ano)
+    final_list.append(name_list.pop(0))
+    for year in ['2018', '2019', '2020', '2021']:
+        final_list.append(year)
 
     while True:
         try:
-            lista_final.append(lista_de_nomes.pop(0))
-            new_val.pop(0)
+            final_list.append(name_list.pop(0))
+            value_list.pop(0)
 
             for i in range(0, 4):
-                lista_final.append(new_val.pop(0))
+                final_list.append(value_list.pop(0))
 
         except IndexError:
             break
 
-    data = list(zip(*[iter(lista_final)] * 5))
+    data = list(zip(*[iter(final_list)] * 5))
 
     df = pd.DataFrame(data)
 

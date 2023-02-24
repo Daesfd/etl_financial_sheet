@@ -38,6 +38,18 @@ def ratios_acquisition_dag(
         output_file_path,
         gcs_inc_data_path_template_task_3
 ):
+    """
+    This function describes a DAG, which, from locally data files,
+    that were got from bp_etl_dag and dre_etl_data, gets financials ratios.
+    Then, it loads the data in a tier 2 GCS bucket.
+    Lastly, it removes the local files, which won't be used in the other DAGs.
+
+    :param dag: This function's DAG.
+    :param local_parquet_bp_data_transf_path_template: Local path file where the financial sheet data is stored.
+    :param local_parquet_dre_data_transf_path_template: Local path file where the income statement data is stored.
+    :param output_file_path: Local path file where the ratio data will be stored.
+    :param gcs_inc_data_path_template_task_3: Path where the ratio data will be stored in a GCS' bucket.
+    """
     with dag:
 
         get_ratios_task = PythonOperator(
@@ -78,6 +90,22 @@ def acquisition_avg_sector_values_dag(
         gcs_inc_data_path_template_task_4
 
 ):
+    """
+    This function describe a DAG, which, from locally data files,
+    that were got from ratios_acquisition_dag, gets the average financial ratios,
+    from the stocks below.
+    Then, it loads the data in a tier 3 GCS bucket.
+    Lastly, it removes the local files, which won't be used in the other DAGs.
+
+    :param dag: This function's DAG
+    :param path_to_lren_ind: Local path file where the ratio data from lren is stored.
+    :param path_to_hnory_ind: Local path file where the ratio data from hnory is stored.
+    :param path_to_frg_ind: Local path file where the ratio data from frg is stored.
+    :param path_to_nxgpy_ind: Local path file where the ratio data from nxgpy is stored.
+    :param avg_path_file: Local path file where the average ratio data from will be stored
+    :param gcs_inc_data_path_template_task_4: Path where the average ratio data will be stored in GCS' bucket.
+    :return:
+    """
     with dag:
 
         avg_sector_values_task = PythonOperator(
@@ -104,11 +132,13 @@ def acquisition_avg_sector_values_dag(
 
         rm_task = BashOperator(
             task_id="rm_task",
-            bash_command=f"rm {avg_path_file}"
+            bash_command=f"rm {avg_path_file} {path_to_lren_ind} {path_to_hnory_ind} {path_to_frg_ind} {path_to_nxgpy_ind}"
         )
 
         avg_sector_values_task >> local_to_gcs_task4_tier_3 >> rm_task
 
+
+#
 
 FRG_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/frg_ratio.parquet'
 HNORY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/hnory_ratio.parquet'
@@ -140,6 +170,9 @@ acquisition_avg_sector_values_dag(
 
 
 ######################################################################################################################
+
+#
+
 MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data_transf.parquet'
 MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_bp_data_transf.parquet'
 MGLU_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/mglu_ratio.parquet'

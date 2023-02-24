@@ -1,49 +1,49 @@
 import pandas as pd
 
 
-def limpeza_dos_dados(input_file, output_file):
+def data_cleaning(input_file, output_file):
 
     df = pd.read_csv(input_file)
 
-    for ano in ['2018', '2019', '2020', '2021']:
+    for year in ['2018', '2019', '2020', '2021']:
 
-        df[ano] = df[ano].str.replace('(', '-', regex=True).str.replace(')', '', regex=True)
+        df[year] = df[year].str.replace('(', '-', regex=True).str.replace(')', '', regex=True)
 
         for item in range(0, len(df)):
 
-            df[ano][item] = df[ano][item].replace(',', '')
+            df[year][item] = df[year][item].replace(',', '')
 
-            if df[ano][item] == '-':
+            if df[year][item] == '-':
 
-                df[ano][item] = df[ano][item].replace('-', '')
+                df[year][item] = df[year][item].replace('-', '')
 
-                if len(df[ano][item]) == 0:
+                if len(df[year][item]) == 0:
 
-                    df[ano][item] = 0
+                    df[year][item] = 0
 
-            elif df[ano][item].endswith('B'):
+            elif df[year][item].endswith('B'):
 
-                df[ano][item] = float(df[ano][item].split('B')[0]) * 1000
+                df[year][item] = float(df[year][item].split('B')[0]) * 1000
 
-            elif df[ano][item].endswith('M'):
+            elif df[year][item].endswith('M'):
 
-                df[ano][item] = float(df[ano][item].split('M')[0])
+                df[year][item] = float(df[year][item].split('M')[0])
 
-            elif df[ano][item].endswith('K'):
+            elif df[year][item].endswith('K'):
 
-                df[ano][item] = float(df[ano][item].split('K')[0]) / 1000
+                df[year][item] = float(df[year][item].split('K')[0]) / 1000
 
-            elif df[ano][item].endswith('%'):
+            elif df[year][item].endswith('%'):
 
-                df[ano][item] = float(df[ano][item].split('%')[0]) / 100
+                df[year][item] = float(df[year][item].split('%')[0]) / 100
 
-            elif len(df[ano][item]) == 0:
+            elif len(df[year][item]) == 0:
 
-                df[ano][item] = 0
+                df[year][item] = 0
 
             else:
 
-                df[ano][item] = float(df[ano][item])
+                df[year][item] = float(df[year][item])
 
     df['2018'][4] = 0
 
@@ -124,29 +124,29 @@ def get_ratios(balanco_patrimonial_data_file, dre_data_file, output_file):
     df_bal = pd.read_parquet(balanco_patrimonial_data_file)
     df_dre = pd.read_parquet(dre_data_file)
 
-    for ano in ['2018', '2019', '2020', '2021']:
+    for year in ['2018', '2019', '2020', '2021']:
 
-        liq_ger.append(calc_liq_geral(df_bal=df_bal, year=ano))
-        liq_cor.append(calc_liq_corrente(df_bal=df_bal, year=ano))
-        liq_seca.append(calc_liq_seca(df_bal=df_bal, year=ano))
-        liq_im.append(calc_liq_imediata(df_bal=df_bal, year=ano))
+        liq_ger.append(calc_liq_geral(df_bal=df_bal, year=year))
+        liq_cor.append(calc_liq_corrente(df_bal=df_bal, year=year))
+        liq_seca.append(calc_liq_seca(df_bal=df_bal, year=year))
+        liq_im.append(calc_liq_imediata(df_bal=df_bal, year=year))
 
-        ccl_data.append(calc_ccl(df_bal=df_bal, year=ano))
-        end_ger.append(calc_end_geral(df_bal=df_bal, year=ano))
-        comp_end.append(calc_comp_end(df_bal=df_bal, year=ano))
-        imob_pl.append(calc_imob_pl(df_bal=df_bal, year=ano))
+        ccl_data.append(calc_ccl(df_bal=df_bal, year=year))
+        end_ger.append(calc_end_geral(df_bal=df_bal, year=year))
+        comp_end.append(calc_comp_end(df_bal=df_bal, year=year))
+        imob_pl.append(calc_imob_pl(df_bal=df_bal, year=year))
 
-        giro_at.append(calc_giro_at(df_dre=df_dre, df_bal=df_bal, year=ano))
-        marg_liq.append(calc_marg_liq(df_dre=df_dre, year=ano))
-        roa.append(calc_roa(df_dre=df_dre, df_bal=df_bal, year=ano))
-        roe.append(calc_roe(df_dre=df_dre, df_bal=df_bal, year=ano))
+        giro_at.append(calc_giro_at(df_dre=df_dre, df_bal=df_bal, year=year))
+        marg_liq.append(calc_marg_liq(df_dre=df_dre, year=year))
+        roa.append(calc_roa(df_dre=df_dre, df_bal=df_bal, year=year))
+        roe.append(calc_roe(df_dre=df_dre, df_bal=df_bal, year=year))
 
-        pmrv_lista.append(calc_pmrv(df_bal=df_bal, df_dre=df_dre, year=ano))
-        pmre_lista.append(calc_pmre(df_bal=df_bal, df_dre=df_dre, year=ano))
-        pmpc_lista.append(calc_pmpc(df_bal=df_bal, df_dre=df_dre, year=ano))
+        pmrv_lista.append(calc_pmrv(df_bal=df_bal, df_dre=df_dre, year=year))
+        pmre_lista.append(calc_pmre(df_bal=df_bal, df_dre=df_dre, year=year))
+        pmpc_lista.append(calc_pmpc(df_bal=df_bal, df_dre=df_dre, year=year))
 
-        nig.append(calc_nig(df_bal=df_bal, year=ano))
-        st.append(calc_st(df_bal=df_bal, year=ano))
+        nig.append(calc_nig(df_bal=df_bal, year=year))
+        st.append(calc_st(df_bal=df_bal, year=year))
 
     pmpc_lista.pop(0)
     pmpc_lista.insert(0, (pmpc_lista[0] + pmpc_lista[1] + pmpc_lista[2]) / 3)
@@ -187,22 +187,21 @@ def avg_sector_values(
         path_to_nxgpy_ind,
         output_path_file
 ):
-    anos = ['2018', '2019', '2020', '2021']
     l, col = [], []
-
+    years = ['2018', '2019', '2020', '2021']
     lren_ind = pd.read_parquet(path_to_lren_ind)
     nxgpy_ind = pd.read_parquet(path_to_nxgpy_ind)
     hnory_ind = pd.read_parquet(path_to_hnory_ind)
     frg_ind = pd.read_parquet(path_to_frg_ind)
 
-    for indice in lren_ind.columns:
+    for ratio in lren_ind.columns:
 
-        for ano in anos:
+        for year in years:
 
-            col.append(lren_ind.loc[ano, indice])
-            col.append(nxgpy_ind.loc[ano, indice])
-            col.append(hnory_ind.loc[ano, indice])
-            col.append(frg_ind.loc[ano, indice])
+            col.append(lren_ind.loc[year, ratio])
+            col.append(nxgpy_ind.loc[year, ratio])
+            col.append(hnory_ind.loc[year, ratio])
+            col.append(frg_ind.loc[year, ratio])
 
             media = sum(col[:4]) / 4
 
@@ -213,7 +212,7 @@ def avg_sector_values(
     data = list(zip(*[iter(l)] * 4))
 
     df_media = pd.DataFrame(data).T
-    df_media.set_index(pd.Index(anos), inplace=True)
+    df_media.set_index(pd.Index(years), inplace=True)
     df_media.columns = lren_ind.columns
 
     df_media.to_parquet(output_path_file, index=True)
