@@ -132,13 +132,81 @@ def acquisition_avg_sector_values_dag(
 
         rm_task = BashOperator(
             task_id="rm_task",
-            bash_command=f"rm {avg_path_file} {path_to_lren_ind} {path_to_hnory_ind} {path_to_frg_ind} {path_to_nxgpy_ind}"
+            bash_command=f"rm {path_to_lren_ind} {path_to_hnory_ind} {path_to_frg_ind} {path_to_nxgpy_ind}"
         )
 
         avg_sector_values_task >> local_to_gcs_task4_tier_3 >> rm_task
 
 
-#
+def get_ratios_images_dag(
+        dag,
+        avg_path_file,
+        path_to_mglu_file,
+        image_path,
+        gcs_inc_data_path_template_task_5
+
+):
+    with dag:
+
+        get_ratios_images_task = PythonOperator(
+            task_id='get_ratios_images_task',
+            python_callable=get_images,
+            op_kwargs={
+                'avg_path_file': avg_path_file,
+                'mglu_ratio_path_file': path_to_mglu_file,
+                'image_file_path': image_path
+            }
+        )
+        for name in ['Liquidez_Geral', 'Liquidez_Corrente', 'Liquidez_Seca',
+       'Liquidez_Imediata', 'CCL', 'Endividamento_Geral',
+       'Composicao_do_Endividamento', 'Imobilizacao_do_Patrimonio_Liquido',
+       'Giro_do_Ativo', 'Margem_Liquida', 'ROA', 'ROE-RSPL', 'PMRV', 'PMRE',
+       'PMPC', 'CO', 'CF', 'NIG', 'ST']:
+
+            image_name = name
+
+            local_to_gcs_task5_tier_3 = PythonOperator(
+                task_id=f'local_to_gcs_task5_{name}',
+                python_callable=upload_to_gcs,
+                op_kwargs={
+                    "bucket": BUCKET,
+                    "object_name": f'{gcs_inc_data_path_template_task_5}/{image_name}.png',
+                    "local_file": f'{image_path}/{image_name}.png',
+                }
+            )
+
+        rm_task = BashOperator(
+            task_id="rm_task",
+            bash_command=f"rm {avg_path_file} {path_to_mglu_file} *.png"
+        )
+        get_ratios_images_task >> local_to_gcs_task5_tier_3 >> rm_task
+
+
+AVERAGE_RATIO_FILE_TEMPLATE = AIRFLOW_HOME + '/avg_ratio.parquet'
+MGLU_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/mglu_ratio.parquet'
+IMAGE_PATH_TEMPLATE = AIRFLOW_HOME
+IMAGE_GCS_PATH_TEMPLATE = 'tier3/IMAGE'
+
+
+
+images_dag = DAG(
+    dag_id='images_dag',
+    schedule_interval='@once',
+    default_args=default_args,
+    start_date=pendulum.today('UTC').add(days=0),
+    max_active_runs=1,
+    catchup=True,
+    tags=['images_dag']
+)
+
+get_ratios_images_dag(
+    dag=images_dag,
+    avg_path_file=AVERAGE_RATIO_FILE_TEMPLATE,
+    path_to_mglu_file=MGLU_RATIO_FILE_TEMPLETE,
+    image_path=IMAGE_PATH_TEMPLATE,
+    gcs_inc_data_path_template_task_5=IMAGE_GCS_PATH_TEMPLATE
+)
+
 
 FRG_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/frg_ratio.parquet'
 HNORY_RATIO_FILE_TEMPLETE = AIRFLOW_HOME + '/hnory_ratio.parquet'

@@ -1,4 +1,5 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def data_cleaning(input_file, output_file):
@@ -156,18 +157,18 @@ def get_ratios(balanco_patrimonial_data_file, dre_data_file, output_file):
         cf.append(calc_cf(co=co[i], pmpc=pmpc_lista[i]))
 
     df_com_indicadores = pd.DataFrame({
-        'Liquidez Geral': liq_ger,
-        'Liquidez Corrente': liq_cor,
-        'Liquidez Seca': liq_cor,
-        'Liquidez Imediata': liq_im,
+        'Liquidez_Geral': liq_ger,
+        'Liquidez_Corrente': liq_cor,
+        'Liquidez_Seca': liq_cor,
+        'Liquidez_Imediata': liq_im,
         'CCL': ccl_data,
-        'Endividamento Geral': end_ger,
-        'Composicao do Endividamento': comp_end,
-        'Imobilizacao do Patrimonio Liquido': imob_pl,
-        'Giro do Ativo': giro_at,
-        'Margem Liquida': marg_liq,
+        'Endividamento_Geral': end_ger,
+        'Composicao_do_Endividamento': comp_end,
+        'Imobilizacao_do_Patrimonio_Liquido': imob_pl,
+        'Giro_do_Ativo': giro_at,
+        'Margem_Liquida': marg_liq,
         'ROA': roa,
-        'ROE/RSPL': roe,
+        'ROE-RSPL': roe,
         'PMRV': pmrv_lista,
         'PMRE': pmre_lista,
         'PMPC': pmpc_lista,
@@ -216,3 +217,20 @@ def avg_sector_values(
     df_media.columns = lren_ind.columns
 
     df_media.to_parquet(output_path_file, index=True)
+
+
+def get_images(avg_path_file, mglu_ratio_path_file, image_file_path):
+
+    df_setor = pd.read_parquet(avg_path_file)
+    df_mglu = pd.read_parquet(mglu_ratio_path_file)
+
+    for Item in df_setor.columns:
+
+        plt.plot(df_setor.index, df_setor[Item], label=Item + ' Setor')
+        plt.plot(df_mglu.index, df_mglu[Item], label=Item + ' MGLU')
+
+        plt.xlabel('Ano')
+        plt.ylabel('Valor')
+        plt.legend()
+
+        plt.savefig(f'{image_file_path}/{Item}.png')
