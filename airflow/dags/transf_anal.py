@@ -104,7 +104,6 @@ def acquisition_avg_sector_values_dag(
     :param path_to_nxgpy_ind: Local path file where the ratio data from nxgpy is stored.
     :param avg_path_file: Local path file where the average ratio data from will be stored
     :param gcs_inc_data_path_template_task_4: Path where the average ratio data will be stored in GCS' bucket.
-    :return:
     """
     with dag:
 
