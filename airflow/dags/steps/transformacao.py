@@ -308,3 +308,4 @@ def get_images(avg_path_file, mglu_ratio_path_file, image_file_path):
         plt.legend()
 
         plt.savefig(f'{image_file_path}/{Item}.png')
+        plt.clf()
