@@ -117,13 +117,13 @@ def get_ratios(balanco_patrimonial_data_file, dre_data_file, output_file):
         return df_dre[year][0] / df_bal[year][34]
 
     def calc_marg_liq(df_dre, year):
-        return df_dre[year][38] / df_dre[year][0]
+        return (df_dre[year][38] / df_dre[year][0]) * 100
 
     def calc_roa(df_dre, df_bal, year):
-        return df_dre[year][38] / df_bal[year][34]
+        return (df_dre[year][38] / df_bal[year][34]) * 100
 
     def calc_roe(df_dre, df_bal, year):
-        return df_dre[year][38] / df_bal[year][77]
+        return (df_dre[year][38] / df_bal[year][77]) * 100
 
     def calc_pmrv(df_bal, df_dre, year):
         return df_bal[year][5] / df_dre[year][0] * 360
