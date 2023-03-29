@@ -42,7 +42,6 @@ def ratios_acquisition_dag(
     This function describes a DAG, which, from locally data files,
     that were got from bp_etl_dag and dre_etl_data, gets financials ratios.
     Then, it loads the data in a tier 2 GCS bucket.
-    Lastly, it removes the local files, which won't be used in the other DAGs.
 
     :param dag: This function's DAG.
     :param local_parquet_bp_data_transf_path_template: Local path file where the financial sheet data is stored.
@@ -89,7 +88,6 @@ def acquisition_avg_sector_values_dag(
     that were got from ratios_acquisition_dag, gets the average financial ratios,
     from the stocks below.
     Then, it loads the data in a tier 3 GCS bucket.
-    Lastly, it removes the local files, which won't be used in the other DAGs.
 
     :param dag: This function's DAG
     :param path_to_lren_ind: Local path file where the ratio data from lren is stored.
@@ -132,6 +130,19 @@ def get_ratios_images_dag(
         image_path,
         gcs_inc_data_path_template_task_5
 ):
+    """
+    This function describes a DAG, which compares, using matplotlib,
+    the sector ratio data and the mglu ratio data and creates images
+    from each financial ratio.
+    Then, it loads each image into a GCS bucket.
+    Lastly, it removes the local files, which won't be used in the other DAGs.
+
+    :param dag: This function's DAG
+    :param avg_path_file: Local path file where the average ratio data is stored.
+    :param path_to_mglu_file: Local path file where the ratio data from mglu is stored.
+    :param image_path: Local path file where the images will be stored.
+    :param gcs_inc_data_path_template_task_5: Path where the images will be stored in GCS' bucket.
+    """
 
     with dag:
 
