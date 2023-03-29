@@ -7,6 +7,7 @@ from airflow.operators.python import PythonOperator
 
 from steps.extracao import *
 from steps.transformacao import *
+from steps.validacao import *
 
 from google.cloud import storage
 
@@ -178,13 +179,13 @@ def bp_etl_dag(
 
 #
 
-MGLU_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data.csv'
-MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_dre_data_transf.parquet'
+MGLU_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/unclean_data/mglu_dre_data.csv'
+MGLU_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/clean_data/mglu_dre_data_transf.parquet'
 MGLU_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/mglu_dre_data_raw.csv'
 MGLU_DRE_GCS_PATH_TEMPLATE_2 = 'tier2/DRE/mglu_dre_data_transf.parquet'
 
-MGLU_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_bp_data.csv'
-MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/mglu_bp_data_transf.parquet'
+MGLU_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/unclean_data/mglu_bp_data.csv'
+MGLU_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/clean_data/mglu_bp_data_transf.parquet'
 MGLU_BP_GCS_PATH_TEMPLATE_1 = 'tier1/BP/mglu_bp_data_raw.csv'
 MGLU_BP_GCS_PATH_TEMPLATE_2 = 'tier2/BP/mglu_bp_data_transf.parquet'
 
@@ -221,13 +222,13 @@ bp_etl_dag(
 
 #
 
-FRG_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_dre_data.csv'
-FRG_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_dre_data_transf.parquet'
+FRG_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/unclean_data/frg_dre_data.csv'
+FRG_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/clean_data/frg_dre_data_transf.parquet'
 FRG_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/frg_dre_data_raw.csv'
 FRG_DRE_GCS_PATH_TEMPLATE_2 = 'tier2/DRE/frg_dre_data_transf.parquet'
 
-FRG_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_bp_data.csv'
-FRG_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/frg_bp_data_transf.parquet'
+FRG_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/unclean_data/frg_bp_data.csv'
+FRG_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/clean_data/frg_bp_data_transf.parquet'
 FRG_BP_GCS_PATH_TEMPLATE_1 = 'tier1/BP/frg_bp_data_raw.csv'
 FRG_BP_GCS_PATH_TEMPLATE_2 = 'tier2/BP/frg_bp_data_transf.parquet'
 
@@ -261,13 +262,13 @@ bp_etl_dag(
     local_parquet_bp_data_transf_path_template=FRG_PARQUET_BP_TRANSF_FILE_TEMPLATE
 )
 ##################################################################################################################
-HNORY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_dre_data.csv'
-HNORY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_dre_data_transf.parquet'
+HNORY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/unclean_data/hnory_dre_data.csv'
+HNORY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/clean_data/hnory_dre_data_transf.parquet'
 HNORY_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/hnory_dre_data_raw.csv'
 HNORY_DRE_GCS_PATH_TEMPLATE_2 = 'tier2/DRE/hnory_dre_data_transf.parquet'
 
-HNORY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_bp_data.csv'
-HNORY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/hnory_bp_data_transf.parquet'
+HNORY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/unclean_data/hnory_bp_data.csv'
+HNORY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/clean_data/hnory_bp_data_transf.parquet'
 HNORY_BP_GCS_PATH_TEMPLATE_1 = 'tier1/BP/hnory_bp_data_raw.csv'
 HNORY_BP_GCS_PATH_TEMPLATE_2 = 'tier2/BP/hnory_bp_data_transf.parquet'
 
@@ -301,13 +302,13 @@ bp_etl_dag(
     local_parquet_bp_data_transf_path_template=HNORY_PARQUET_BP_TRANSF_FILE_TEMPLATE
 )
 ##############################################################################################################################
-LRENY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_dre_data.csv'
-LRENY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_dre_data_transf.parquet'
+LRENY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/unclean_data/lreny_dre_data.csv'
+LRENY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/clean_data/lreny_dre_data_transf.parquet'
 LRENY_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/lreny_dre_data_raw.csv'
 LRENY_DRE_GCS_PATH_TEMPLATE_2 = 'tier2/DRE/lreny_dre_data_transf.parquet'
 
-LRENY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_bp_data.csv'
-LRENY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/lreny_bp_data_transf.parquet'
+LRENY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/unclean_data/lreny_bp_data.csv'
+LRENY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/clean_data/lreny_bp_data_transf.parquet'
 LRENY_BP_GCS_PATH_TEMPLATE_1 = 'tier1/BP/lreny_bp_data_raw.csv'
 LRENY_BP_GCS_PATH_TEMPLATE_2 = 'tier2/BP/lreny_bp_data_transf.parquet'
 
@@ -341,13 +342,13 @@ bp_etl_dag(
     local_parquet_bp_data_transf_path_template=LRENY_PARQUET_BP_TRANSF_FILE_TEMPLATE
 )
 ##################################################################################################################
-NXGPY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_dre_data.csv'
-NXGPY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_dre_data_transf.parquet'
+NXGPY_CSV_DRE_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/unclean_data/nxgpy_dre_data.csv'
+NXGPY_PARQUET_DRE_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/dre_data/clean_data/nxgpy_dre_data_transf.parquet'
 NXGPY_DRE_GCS_PATH_TEMPLATE_1 = 'tier1/DRE/nxgpy_dre_data_raw.csv'
 NXGPY_DRE_GCS_PATH_TEMPLATE_2 = 'tier2/DRE/nxgpy_dre_data_transf.parquet'
 
-NXGPY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_bp_data.csv'
-NXGPY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/nxgpy_bp_data_transf.parquet'
+NXGPY_CSV_BP_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/unclean_data/nxgpy_bp_data.csv'
+NXGPY_PARQUET_BP_TRANSF_FILE_TEMPLATE = AIRFLOW_HOME + '/bp_data/clean_data/nxgpy_bp_data_transf.parquet'
 NXGPY_BP_GCS_PATH_TEMPLATE_1 = 'tier1/BP/nxgpy_bp_data_raw.csv'
 NXGPY_BP_GCS_PATH_TEMPLATE_2 = 'tier2/BP/nxgpy_bp_data_transf.parquet'
 
