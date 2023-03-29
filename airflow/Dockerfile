@@ -5,6 +5,16 @@ ENV AIRFLOW_HOME=/opt/airflow
 USER root
 RUN apt-get update -qq && apt-get install vim -qqq
 # git gcc g++ -qqq
+RUN mkdir "/opt/airflow/bp_data" "/opt/airflow/dre_data" "/opt/airflow/ratio" \
+    "/opt/airflow/bp_data/clean_data" "/opt/airflow/bp_data/unclean_data" "/opt/airflow/bp_data/suites" \
+    "/opt/airflow/dre_data/clean_data" "/opt/airflow/dre_data/unclean_data" "/opt/airflow/dre_data/suites" \
+    "/opt/airflow/ratio/suites" "/opt/airflow/validations"
+
+
+RUN chmod -R 777 "/opt/airflow/bp_data" "/opt/airflow/dre_data" "/opt/airflow/ratio" \
+    "/opt/airflow/bp_data/clean_data" "/opt/airflow/bp_data/unclean_data" "/opt/airflow/bp_data/suites" \
+    "/opt/airflow/dre_data/clean_data" "/opt/airflow/dre_data/unclean_data" "/opt/airflow/dre_data/suites" \
+    "/opt/airflow/ratio/suites" "/opt/airflow/validations"
 
 USER airflow
 
