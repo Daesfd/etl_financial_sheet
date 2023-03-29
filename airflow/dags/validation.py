@@ -164,7 +164,7 @@ EXPECTATION_BP_SUITE_FILE_PATH = AIRFLOW_HOME + '/bp_data/suites/bp_suite.json'
 VALIDATIONS_FOLDER = AIRFLOW_HOME + '/validations'
 
 bp_val_dag = DAG(
-    dag_id='bp_validation_file',
+    dag_id='bp_validation_dag',
     schedule_interval='@once',
     default_args=default_args,
     start_date=pendulum.today('UTC').add(days=0),
