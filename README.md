@@ -21,3 +21,12 @@ Infraestructure made using Terraform to create GCP resources.
 
 For the others [financial ratios](https://github.com/Daesfd/etl_financial_sheet/blob/main/docs/images/)
 
+# How to Use
+<img src="https://github.com/Daesfd/etl_financial_sheet/blob/main/docs/images/Flowchart%20Template%20How%20to%20Use.jpg" width="800" height="300">
+
+# Limitations/Problems
+There are limitations and problems in this projects. The most importants ones are:
+
+1. Import of 'val_data_to_gcs_dag' if there aren't any files in the validations folder.
+    To resolve this error, it is needed to proceed with the whole dag, so it will create the validations file in the validations folder.
+2. Overengeneering: While the project idea is simple, it was used a lot of data engineering tools, which can cause hardships to use and can be pratically useless.
