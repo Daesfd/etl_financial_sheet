@@ -1,4 +1,4 @@
-# Architeture
+# Architecture
 <img src="https://github.com/Daesfd/etl_financial_sheet/blob/main/docs/images/Flowchart%20Template.jpg" width="800" height="500">
 
 1. Extraction of multiples stocks using BeautifulSoup.
